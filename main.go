@@ -24,6 +24,8 @@ var (
 	Config BotConfig
 )
 
+// GOOS=linux GOARCH=amd64 go build
+
 func main() {
 	var err error
 	Config, err = loadConfig()
@@ -56,7 +58,6 @@ func main() {
 		}
 	}()
 
-	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
 	if err != nil {
 		fmt.Println("error opening connection,", err)
