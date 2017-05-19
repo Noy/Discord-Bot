@@ -9,9 +9,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
 	"log"
-	"time"
-	"math/rand"
-	"github.com/Noy/DiscordBotGo/airhorn"
 )
 
 const (
@@ -66,6 +63,7 @@ func main() {
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	dg.UpdateStatus(1, "Bingo.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -81,11 +79,11 @@ func messageCreate(msg BotMessage, botId string) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if msg.Author.ID == botId {return}
-	if msg.Author.Name == "Noy" || msg.Author.Name == "Owen" {
-		bingo(msg)
-
+	Bingo(msg)
+	if HasPermissionUser(msg.Author) {
 		// If it doesn't have the prefix, ignore the message
 		if !strings.HasPrefix(msg.Message, Prefix) {return}
+
 		msg.Message = msg.Message[len(Prefix):]
 
 		registerCommands(msg)
@@ -102,46 +100,51 @@ func messageCreate(msg BotMessage, botId string) {
 // Utils
 
 func registerCommands(msg BotMessage) {
-	randomResponses(msg)
-	helpCommand(msg)
+	RandomResponses(msg)
+	Help(msg)
 	airHorn(msg)
+	join(msg)
+	kickCommand(msg)
 }
 
-// Commands
-
-func randomResponses(msg BotMessage) {
-	msgs := []string{"Yes", "No", "Of course", "Ew, no", ":nauseated_face:", "YES", "Oh my god yes", "I wish", "Uh, no", "/me cringes", "/tableflip", "/shrug"}
-	rand.Seed(time.Now().Unix()) // initialize random generator
-	message := fmt.Sprint(msgs[rand.Intn(len(msgs))])
-	if strings.HasPrefix(msg.Message, "wouldyou") || strings.HasPrefix(msg.Message, "haveyou") || strings.HasPrefix(msg.Message, "willyou") {
-		msg.SendMessage(message)
+//TODO fix
+func join(msg BotMessage) {
+	if msg.Message == "join" {
+		msg.Author.session.ChannelVoiceJoin("207558416132997122", "315027061028945921", false, true)
+		msg.SendMessage("Joining.")
 	}
 }
 
-func bingo(msg BotMessage) {
-	if CaseInsensitiveContains(msg.Message, "bingo") {
-		count++
-		msg.SendMessagef(`The word "bingo" has been said %d times`, count)
-	}
-}
-
-func CaseInsensitiveContains(a, b string) bool {
-	return strings.Contains(strings.ToLower(a), strings.ToLower(b))
-}
-
-func helpCommand(msg BotMessage) {
-	if msg.Message == "help" {
-		msg.SendMessage("---Introduction---")
-		msg.SendMessage("Discord Bot made in Go by N.")
-		msg.SendMessage("Every command starts with a '>'")
-		msg.SendMessage("Some commands are !kick , !google , !topic , etc..")
-		msg.SendMessage("For all commands, visit this Gist: https://gist.github.com/Noy/54c439a0f2d577f29ba6985d79bdb9be")
-	}
-}
-
+//TODO fix
 func airHorn(msg BotMessage)  {
 	if msg.Message == "airhorn" {
 		msg.SendMessage("Airhorn activated! Type !airhorn")
-		airhorn.Go()
+		//airhorn.Go()
 	}
+}
+
+//TODO this
+func kickCommand(msg BotMessage) {
+	if HasPermissionUser(msg.Author) {
+		if msg.Message == "nig" {
+			sesh := msg.Author.session
+			c, err := sesh.State.Channel(string(msg.ChannelID)) // may not work
+			if err != nil {
+				// could not find channel
+				return
+			}
+			g, err := sesh.State.Guild(c.GuildID)
+			if err != nil {
+				// could not find guild
+				return
+			}
+			fmt.Println(g.Name)
+		}
+	}
+}
+
+//TODO this
+func permissionCommand(msg BotMessage) {
+	if msg.Author.Name != "Noy" {msg.SendMessage("You do not have permission!")}
+
 }

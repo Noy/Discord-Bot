@@ -20,6 +20,6 @@ func RandString(n int) string {
 	return string(b)
 }
 
-func CaseInsenstiveContains(a, b string) bool {
+func CaseInsensitiveContains(a, b string) bool {
 	return strings.Contains(strings.ToLower(a), strings.ToLower(b))
 }
