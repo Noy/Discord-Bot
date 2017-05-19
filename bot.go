@@ -9,16 +9,20 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
 	"log"
+	"github.com/Noy/DiscordBotGo/airhorn"
+	"google.golang.org/api/youtube/v3"
 )
 
 const (
 	Version = "Version: 1.0"
-	Prefix = ">"
+	Prefix  = ">"
 )
 
 var (
-	count = 0
+	count  = 0
 	Config BotConfig
+	Perm   Permission
+	YTService *youtube.Service
 )
 
 // GOOS=linux GOARCH=amd64 go build
@@ -26,8 +30,11 @@ var (
 func main() {
 	var err error
 	Config, err = loadConfig()
+	Perm, err = loadPermFile()
+	fmt.Println("These Users currently have permission:", Perm.Users)
+
 	if err != nil {
-		log.Println("could not find config! please create one at ocnfig.toml")
+		log.Println("Could not find config! please create one at ocnfig.toml")
 		return
 	}
 
@@ -37,17 +44,16 @@ func main() {
  	|    |  _/  |/    \  / ___\ /  _ \|    |  _//  _ \   __\
  	|    |   \  |   |  \/ /_/  >  <_> )    |   (  <_> )  |
  	|______  /__|___|  /\___  / \____/|______  /\____/|__|
-        	\/        \//_____/               \/              %-16s`+"\n\n", Version)
+        	\/        \//_____/               \/              %-16s`+ "\n\n", Version)
 
 	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " +  Config.Token)
+	dg, err := discordgo.New("Bot " + Config.Token)
 
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
 
-	// Register the messageCreate func as a callback for MessageCreate events.
 	messagesIn := GetMessages(dg)
 	go func() {
 		for {
@@ -61,43 +67,36 @@ func main() {
 		return
 	}
 
-	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
-	dg.UpdateStatus(1, "Bingo.")
+	dg.UpdateStatus(0, "Bingo.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-	// Cleanly close down the Discord session.
 	dg.Close()
 }
 
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the autenticated bot has access to.
 func messageCreate(msg BotMessage, botId string) {
-
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
 	if msg.Author.ID == botId {return}
+
 	Bingo(msg)
-	if HasPermissionUser(msg.Author) {
-		// If it doesn't have the prefix, ignore the message
-		if !strings.HasPrefix(msg.Message, Prefix) {return}
 
-		msg.Message = msg.Message[len(Prefix):]
+	if !strings.HasPrefix(msg.Message, Prefix) {return}
 
-		registerCommands(msg)
+	msg.Message = msg.Message[len(Prefix):]
 
-		// Register all commands
+	registerCommands(msg)
 
-		// I want to see the bot's response too.
-		log.Println(msg.Author, ": ", msg.Message)
-	} else {
-		msg.SendMessage("Sorry, you do not have permission!")
-	}
+	log.Println(msg.Author.Name, ": ", msg.Message)
 }
 
 // Utils
+
+func source(msg BotMessage) {
+	if msg.Message == "source"{
+		msg.SendMessage("I'm on GitHub! https://github.com/Noy/DiscordBotGo")
+	}
+}
 
 func registerCommands(msg BotMessage) {
 	RandomResponses(msg)
@@ -105,7 +104,11 @@ func registerCommands(msg BotMessage) {
 	airHorn(msg)
 	join(msg)
 	kickCommand(msg)
+	AddPermissionFor(msg)
+	source(msg)
 }
+
+// TODO
 
 //TODO fix
 func join(msg BotMessage) {
@@ -116,16 +119,16 @@ func join(msg BotMessage) {
 }
 
 //TODO fix
-func airHorn(msg BotMessage)  {
+func airHorn(msg BotMessage) {
 	if msg.Message == "airhorn" {
 		msg.SendMessage("Airhorn activated! Type !airhorn")
-		//airhorn.Go()
+		airhorn.Go()
 	}
 }
 
 //TODO this
 func kickCommand(msg BotMessage) {
-	if HasPermissionUser(msg.Author) {
+	if HasPermissionUser(msg.Author.Name) {
 		if msg.Message == "nig" {
 			sesh := msg.Author.session
 			c, err := sesh.State.Channel(string(msg.ChannelID)) // may not work
@@ -141,10 +144,4 @@ func kickCommand(msg BotMessage) {
 			fmt.Println(g.Name)
 		}
 	}
-}
-
-//TODO this
-func permissionCommand(msg BotMessage) {
-	if msg.Author.Name != "Noy" {msg.SendMessage("You do not have permission!")}
-
 }
