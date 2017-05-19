@@ -45,8 +45,6 @@ func GetMessages(session *discordgo.Session) (msgsOut <-chan BotMessage) {
 				ID: m.Author.ID,
 				Name: m.Author.Username,
 				session: s,
-				//this might not work because it was a complete guess
-				//fuck
 				ChannelID: MessageDestination(m.Author.ID)}}
 	})
 	return
