@@ -10,12 +10,12 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var chars = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789!%&*")
 
 func RandString(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = chars[rand.Intn(len(chars))]
 	}
 	return string(b)
 }

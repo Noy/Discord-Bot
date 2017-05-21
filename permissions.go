@@ -22,6 +22,13 @@ func AddPerm(user string) {
 	Perm.Users = append(Perm.Users, user)
 }
 
+func RmPerm(user string) {
+	if _, err := toml.DecodeFile("permission.toml", &Perm); err != nil {
+		log.Fatal(err)
+	}
+	Perm.Users = remove(Perm.Users, user)
+}
+
 func HasPermissionUser(user string) (bool) {
 	return contains(Perm.Users, user)
 }
@@ -31,4 +38,13 @@ func contains(s []string, e string) bool {
 		if a == e {return true}
 	}
 	return false
+}
+
+func remove(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
 }

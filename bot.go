@@ -5,14 +5,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-
 	"github.com/bwmarrin/discordgo"
 	"strings"
 	"log"
 )
 
 const (
-	Version = "Version: 1.0"
+	Version = "Version: 1.1"
 	Prefix  = ">"
 )
 
@@ -74,15 +73,11 @@ func main() {
 }
 
 func messageCreate(msg BotMessage, botId string) {
-	if msg.Author.ID == botId {
-		return
-	}
+	if msg.Author.ID == botId { return }
 
-	Bingo(msg)
+	bingo(msg)
 
-	if !strings.HasPrefix(msg.Message, Prefix) {
-		return
-	}
+	if !strings.HasPrefix(msg.Message, Prefix) { return }
 
 	//msg.Message = msg.Message[len(Prefix):]
 
@@ -101,9 +96,14 @@ func messageCreate(msg BotMessage, botId string) {
 
 // Utils
 
-func source(msg BotMessage) {
+func util(msg BotMessage) {
 	if msg.Message == "source" {
 		msg.SendMessage("I'm on GitHub! https://github.com/Noy/DiscordBotGo")
+		return
+	}
+	if msg.Message == "ping" {
+		msg.SendMessage("It works!")
+		return
 	}
 }
 
@@ -113,7 +113,8 @@ func registerCommands(msg BotMessage) {
 	join(msg)
 	kickCommand(msg)
 	addPermissionFor(msg)
-	source(msg)
+	removePermissionFor(msg)
+	util(msg)
 	cat(msg)
 	search(msg)
 	leave(msg)

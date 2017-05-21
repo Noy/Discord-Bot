@@ -17,3 +17,16 @@ func addPermissionFor(msg BotMessage) {
 		}
 	}
 }
+
+func removePermissionFor(msg BotMessage) {
+	if strings.HasPrefix(msg.Message, "rmperm") {
+		if HasPermissionUser(msg.Author.Name) {
+			name := strings.TrimLeft(msg.Message, "rmperm ")
+			RmPerm(name)
+			log.Println(Perm.Users)
+			msg.SendMessage("Added " + name + " to the permissions list.")
+		} else {
+			msg.SendMessage("You don't have permission")
+		}
+	}
+}
