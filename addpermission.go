@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func AddPermissionFor(msg BotMessage) {
+func addPermissionFor(msg BotMessage) {
 	if strings.HasPrefix(msg.Message, "addperm") {
 		if HasPermissionUser(msg.Author.Name) {
 			name := strings.TrimLeft(msg.Message, "addperm ")

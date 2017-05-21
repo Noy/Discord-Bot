@@ -9,8 +9,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
 	"log"
-	"github.com/Noy/DiscordBotGo/airhorn"
-	"google.golang.org/api/youtube/v3"
 )
 
 const (
@@ -22,7 +20,6 @@ var (
 	count  = 0
 	Config BotConfig
 	Perm   Permission
-	YTService *youtube.Service
 )
 
 // GOOS=linux GOARCH=amd64 go build
@@ -77,13 +74,25 @@ func main() {
 }
 
 func messageCreate(msg BotMessage, botId string) {
-	if msg.Author.ID == botId {return}
+	if msg.Author.ID == botId {
+		return
+	}
 
 	Bingo(msg)
 
-	if !strings.HasPrefix(msg.Message, Prefix) {return}
+	if !strings.HasPrefix(msg.Message, Prefix) {
+		return
+	}
 
-	msg.Message = msg.Message[len(Prefix):]
+	//msg.Message = msg.Message[len(Prefix):]
+
+	args := strings.Fields(msg.Message[len(Prefix):])
+
+	command, args := args[0], args[1:]
+
+	msg.Message = command
+
+	msg.Args = args
 
 	registerCommands(msg)
 
@@ -93,43 +102,27 @@ func messageCreate(msg BotMessage, botId string) {
 // Utils
 
 func source(msg BotMessage) {
-	if msg.Message == "source"{
+	if msg.Message == "source" {
 		msg.SendMessage("I'm on GitHub! https://github.com/Noy/DiscordBotGo")
 	}
 }
 
 func registerCommands(msg BotMessage) {
-	RandomResponses(msg)
-	Help(msg)
-	airHorn(msg)
+	randomResponses(msg)
+	help(msg)
 	join(msg)
 	kickCommand(msg)
-	AddPermissionFor(msg)
+	addPermissionFor(msg)
 	source(msg)
-}
-
-// TODO
-
-//TODO fix
-func join(msg BotMessage) {
-	if msg.Message == "join" {
-		msg.Author.session.ChannelVoiceJoin("207558416132997122", "315027061028945921", false, true)
-		msg.SendMessage("Joining.")
-	}
-}
-
-//TODO fix
-func airHorn(msg BotMessage) {
-	if msg.Message == "airhorn" {
-		msg.SendMessage("Airhorn activated! Type !airhorn")
-		airhorn.Go()
-	}
+	cat(msg)
+	search(msg)
+	leave(msg)
 }
 
 //TODO this
 func kickCommand(msg BotMessage) {
 	if HasPermissionUser(msg.Author.Name) {
-		if msg.Message == "nig" {
+		if msg.Message == "kick" {
 			sesh := msg.Author.session
 			c, err := sesh.State.Channel(string(msg.ChannelID)) // may not work
 			if err != nil {

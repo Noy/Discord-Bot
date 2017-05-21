@@ -24,6 +24,7 @@ type BotMessage struct {
 	ID        string
 	Message   string
 	ChannelID MessageDestination
+	Args []string
 	Author    *User
 }
 
@@ -41,6 +42,7 @@ func GetMessages(session *discordgo.Session) (msgsOut <-chan BotMessage) {
 			ID: m.ID,
 			Message: m.Message.Content,
 			ChannelID: MessageDestination(m.ChannelID),
+			Args: []string{},
 			Author: &User{
 				ID: m.Author.ID,
 				Name: m.Author.Username,

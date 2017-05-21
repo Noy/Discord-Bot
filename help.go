@@ -1,6 +1,6 @@
 package main
 
-func Help(msg BotMessage) {
+func help(msg BotMessage) {
 	if msg.Message == "help" {
 		msg.SendMessage("---Introduction---")
 		msg.SendMessage("Discord Bot made in Go by N.")

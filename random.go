@@ -7,7 +7,7 @@ import (
 	"math/rand"
 )
 
-func RandomResponses(msg BotMessage) {
+func randomResponses(msg BotMessage) {
 	msgs := []string{"Yes", "No", "Of course", "Ew, no", ":nauseated_face:", "YES", "Oh my god yes", "I wish", "Uh, no", "/me cringes", "/tableflip", "/shrug"}
 	rand.Seed(time.Now().Unix()) // initialize random generator
 	message := fmt.Sprint(msgs[rand.Intn(len(msgs))])
