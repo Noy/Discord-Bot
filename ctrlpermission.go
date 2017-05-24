@@ -24,7 +24,7 @@ func removePermissionFor(msg BotMessage) {
 			name := strings.TrimLeft(msg.Message, "rmperm ")
 			RmPerm(name)
 			log.Println(Perm.Users)
-			msg.SendMessage("Added " + name + " to the permissions list.")
+			msg.SendMessage("Removed " + name + " to the permissions list.")
 		} else {
 			msg.SendMessage("You don't have permission")
 		}
