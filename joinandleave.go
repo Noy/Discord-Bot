@@ -2,7 +2,7 @@ package main
 
 func join(msg BotMessage) {
 	if msg.Message == "join" {
-		if len(msg.Args) > 0 {
+		if len(msg.Args) > 2 {
 			msg.SendMessage("Too many arguments")
 			return
 		}

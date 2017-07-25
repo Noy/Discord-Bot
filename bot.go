@@ -105,6 +105,27 @@ func util(msg BotMessage) {
 		msg.SendMessage("It works!")
 		return
 	}
+
+	// testing
+	if msg.Message == "usertest" {
+		sesh := msg.Author.session
+		c, err := sesh.State.Channel(string(msg.ChannelID)) // may not work
+		if err != nil {
+			// could not find channel
+			return
+		}
+		g, err := sesh.State.Guild(c.GuildID)
+		if err != nil {
+			// could not find guild
+			return
+		}
+		// loop through the members
+		for _, member := range g.Members {
+			// mention the user (if you want to just say their username, it's User.Username
+			msg.SendMessage(member.User.Mention() + " is their name")
+			fmt.Println(member.User.Email)
+		}
+	}
 }
 
 func registerCommands(msg BotMessage) {
@@ -118,6 +139,7 @@ func registerCommands(msg BotMessage) {
 	cat(msg)
 	search(msg)
 	leave(msg)
+	//announcer(msg)
 }
 
 //TODO this

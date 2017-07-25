@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"math/rand"
+	"fmt"
 )
 
 func cat(msg BotMessage) {
@@ -10,7 +11,7 @@ func cat(msg BotMessage) {
 		msgs := []string{"png", "gif"}
 		resp, err := http.Get("http://thecatapi.com/api/images/get?format=src&type=" + msgs[rand.Intn(len(msgs))])
 		if err != nil {
-			//fmt.Printf("error: ", err)
+			fmt.Sprintf("error: %d", err)
 			return
 		}
 

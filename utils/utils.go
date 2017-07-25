@@ -23,3 +23,25 @@ func RandString(n int) string {
 func CaseInsensitiveContains(a, b string) bool {
 	return strings.Contains(strings.ToLower(a), strings.ToLower(b))
 }
+
+func Schedule(task func(), delay time.Duration) chan bool {
+	stop := make(chan bool)
+	go func() {
+		for {
+			task()
+			select {
+			case <-time.After(delay):
+			case <-stop:
+				return
+			}
+		}
+	}()
+	return stop
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {return true}
+	}
+	return false
+}

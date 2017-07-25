@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/BurntSushi/toml"
 	"log"
+	"github.com/Noy/DiscordBotGo/utils"
 )
 
 type Permission struct {
@@ -30,14 +31,11 @@ func RmPerm(user string) {
 }
 
 func HasPermissionUser(user string) (bool) {
-	return contains(Perm.Users, user)
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {return true}
+	for _, u := range Perm.Users {
+		return utils.CaseInsensitiveContains(u, user)
 	}
-	return false
+	return true
+	//return contains ( Perm.Users, user)
 }
 
 func remove(s []string, r string) []string {
