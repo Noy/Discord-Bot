@@ -4,6 +4,8 @@ import (
 	"github.com/BurntSushi/toml"
 	"log"
 	"github.com/Noy/DiscordBotGo/utils"
+	"os"
+	"bufio"
 )
 
 type Permission struct {
@@ -20,7 +22,34 @@ func AddPerm(user string) {
 	if _, err := toml.DecodeFile("permission.toml", &Perm); err != nil {
 		log.Fatal(err)
 	}
+	//reloadConfig(user)
 	Perm.Users = append(Perm.Users, user)
+}
+
+//TODO this function
+func reloadConfig(user string) (err error) {
+	file, err := os.Create("permission.toml")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	//need to append to the config
+
+	w := bufio.NewWriter(file)
+
+	//w.Write(newUser)
+
+	//for i := 0; i < len(Perm.Users); i++ {
+	//	fmt.Println("Users = [\"" ,Perm.Users[i],"\",\"" + user + "\"]")
+	//}
+	//
+	//fmt.Println(strings.Trim(fmt.Sprint(Perm.Users), "[]"))
+	//fmt.Println("Users = [\"" + "2\",\"" + user + "\"]")
+
+	w.Flush()
+	file.Close()
+	return nil
 }
 
 func RmPerm(user string) {
@@ -35,7 +64,6 @@ func HasPermissionUser(user string) (bool) {
 		return utils.CaseInsensitiveContains(u, user)
 	}
 	return true
-	//return contains ( Perm.Users, user)
 }
 
 func remove(s []string, r string) []string {

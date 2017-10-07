@@ -1,27 +1,26 @@
 package main
 
 import (
-	"strings"
 	"log"
 )
 
 func addPermissionFor(msg BotMessage) {
-	if strings.HasPrefix(msg.Message, "addperm") {
+	if msg.Message == "addperm" {
 		if HasPermissionUser(msg.Author.Name) {
-			name := strings.TrimLeft(msg.Message, "addperm ")
+			name := msg.Args[0]
 			AddPerm(name)
 			log.Println(Perm.Users)
-			msg.SendMessage("Added " + name + " to the permissions list.")
+			msg.SendMessage("Added " + name + " to the permission list.")
 		} else {
-			msg.SendMessage("You don't have permission")
+			msg.SendMessage("You do not have permission.")
 		}
 	}
 }
 
 func removePermissionFor(msg BotMessage) {
-	if strings.HasPrefix(msg.Message, "rmperm") {
+	if msg.Message == "rmperm" {
 		if HasPermissionUser(msg.Author.Name) {
-			name := strings.TrimLeft(msg.Message, "rmperm ")
+			name := msg.Args[0]
 			RmPerm(name)
 			log.Println(Perm.Users)
 			msg.SendMessage("Removed " + name + " to the permissions list.")

@@ -30,7 +30,7 @@ func main() {
 	fmt.Println("These Users currently have permission:", Perm.Users)
 
 	if err != nil {
-		log.Println("Could not find config! please create one at ocnfig.toml")
+		log.Println("Could not find config! please create one at config.toml")
 		return
 	}
 
@@ -77,6 +77,8 @@ func messageCreate(msg BotMessage, botId string) {
 
 	bingo(msg)
 
+	if msg.Message == Prefix {return}
+
 	if !strings.HasPrefix(msg.Message, Prefix) { return }
 
 	//msg.Message = msg.Message[len(Prefix):]
@@ -98,41 +100,21 @@ func messageCreate(msg BotMessage, botId string) {
 
 func util(msg BotMessage) {
 	if msg.Message == "source" {
-		msg.SendMessage("I'm on GitHub! https://github.com/Noy/DiscordBotGo")
+		msg.SendMessage("I'm on GitHub! https://github.com/Noy/DiscordBot")
 		return
 	}
 	if msg.Message == "ping" {
 		msg.SendMessage("It works!")
 		return
 	}
-
-	// testing
-	if msg.Message == "usertest" {
-		sesh := msg.Author.session
-		c, err := sesh.State.Channel(string(msg.ChannelID)) // may not work
-		if err != nil {
-			// could not find channel
-			return
-		}
-		g, err := sesh.State.Guild(c.GuildID)
-		if err != nil {
-			// could not find guild
-			return
-		}
-		// loop through the members
-		for _, member := range g.Members {
-			// mention the user (if you want to just say their username, it's User.Username
-			msg.SendMessage(member.User.Mention() + " is their name")
-			fmt.Println(member.User.Email)
-		}
-	}
+	
 }
 
 func registerCommands(msg BotMessage) {
 	randomResponses(msg)
 	help(msg)
 	join(msg)
-	kickCommand(msg)
+	//kickCommand(msg)
 	addPermissionFor(msg)
 	removePermissionFor(msg)
 	util(msg)
@@ -140,12 +122,19 @@ func registerCommands(msg BotMessage) {
 	search(msg)
 	leave(msg)
 	//announcer(msg)
+	announce(msg)
 }
 
 //TODO this
 func kickCommand(msg BotMessage) {
 	if HasPermissionUser(msg.Author.Name) {
 		if msg.Message == "kick" {
+			if len(msg.Args) == 0 {
+				msg.SendMessage("Please mention a user")
+			}
+			if len(msg.Args) > 1 {
+				msg.SendMessage("Please use less arguments")
+			}
 			sesh := msg.Author.session
 			c, err := sesh.State.Channel(string(msg.ChannelID)) // may not work
 			if err != nil {
@@ -157,7 +146,20 @@ func kickCommand(msg BotMessage) {
 				// could not find guild
 				return
 			}
-			fmt.Println(g.Name)
+
+			var mentionedUser = msg.Args[0]
+
+			//msg.Author.session.GuildMember(g.ID, )
+
+			for _, member := range g.Members {
+				member.User.Username = mentionedUser
+				// mention the user (if you want to just say their username, it's User.Username
+			}
+			msg.Author.session.GuildBanCreate(g.ID, mentionedUser, 1)
+			msg.SendMessage("Banned, " + msg.Args[0])
+			fmt.Println(mentionedUser)
 		}
+	} else {
+		msg.SendMessage("You don't have permission!")
 	}
 }
